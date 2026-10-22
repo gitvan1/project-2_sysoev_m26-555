@@ -1,5 +1,17 @@
+import primitive_db.utils as utils
+
 # Разрешённые типы столбцов
 ALLOWED_TYPES = {"int", "str", "bool"}
+
+def _validate_value(value, col_type: str) -> bool:
+    """Проверить, что значение соответствует типу столбца."""
+    if col_type == "int":
+        return isinstance(value, int) and not isinstance(value, bool)
+    if col_type == "str":
+        return isinstance(value, str)
+    if col_type == "bool":
+        return isinstance(value, bool)
+    return False
 
 def create_table(metadata: dict, table_name: str, columns: list) -> dict:
     """Создание таблицы"""
@@ -71,3 +83,76 @@ def drop_table(metadata: dict, table_name: str) -> dict:
     del new_metadata[table_name]
     print(f"Таблица '{table_name}' успешно удалена.")
     return new_metadata
+
+def insert(metadata: dict, table_name: str, values: dict) -> list[dict]:
+    """Вставка строки в таблицу"""
+
+    # Проверка существования таблицы
+    if table_name not in metadata:
+        print(f"Ошибка: таблицы '{table_name}' не существует.")
+        return utils.load_table_data(table_name)
+
+    # Проверка равенства количества переданных значений и количества столбцов 
+    columns_list = metadata[table_name]["columns"]
+    col_types = {}
+    for item in columns_list:
+        name, col_type = item.split(":", 1)
+        col_types[name] = col_type
+    user_col_types = {k: v for k, v in col_types.items() if k != "id"}
+    if set(values.keys()) != set(user_col_types.keys()):
+        print(
+            f"Ошибка: ожидались столбцы {sorted(user_col_types)}, "
+            f"получены {sorted(values.keys())}."
+        )
+        return utils.load_table_data(table_name)
+
+    # Валидация типов данных
+    for col_name in user_col_types.keys():
+        if not _validate_value(values[col_name], user_col_types[col_name]):
+            print(f"Ошибка: значение '{values[col_name]}' не соответствует "
+                  f"типу '{user_col_types[col_name]}' для столбца '{col_name}'.")
+            return utils.load_table_data(table_name)
+
+    # Загрузка 
+    data = utils.load_table_data(table_name)
+
+    # Генерация id
+    new_id = max((row.get("id", 0) for row in data), default=0) + 1
+    new_row = {"id": new_id, **values}
+
+    # Добавление
+    data.append(new_row)
+
+    return data
+
+def select(table_data: list[dict], where_clause: dict | None = None) -> list[dict]:
+    """Выбор строк, соответствующих where_clause"""
+
+    if where_clause is None:
+        return list(table_data)
+    
+    result = []
+    for row in table_data:
+        if all(row.get(k) == v for k, v in where_clause.items()):
+            result.append(row)
+    return result
+
+def update(table_data: list[dict], set_clause: dict, where_clause: dict) -> list[dict]:
+    """Обновление строк, соответствующих where_clause, полями из set_clause"""
+    
+    for row in table_data:
+        if all(row.get(k) == v for k, v in where_clause.items()):
+            row.update(set_clause)
+    return table_data
+
+def delete(table_data: list[dict], where_clause: dict) -> list[dict]:
+    """Удаление строк, соответствующих where_clause"""
+
+    result = []
+    for row in table_data:
+        if not all(row.get(k) == v for k, v in where_clause.items()):
+            result.append(row)
+    return result
+
+
+

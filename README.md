@@ -17,13 +17,13 @@
 ### Пример
 
 ```text
->>> create_table users name:str age:int is_active:bool
+>>>Введите команду: create_table users name:str age:int is_active:bool
 Таблица "users" успешно создана со столбцами: id:int, name:str, age:int, is_active:bool
 
->>> list_tables
+>>>Введите команду: list_tables
 - users
 
->>> drop_table users
+>>>Введите команду: drop_table users
 Таблица "users" успешно удалена.
 ```
 
@@ -45,26 +45,76 @@ https://asciinema.org/a/iNMc75SN8BwCWmMN
 ### Пример работы
 
 ```text
->>> create_table users name:str age:int is_active:bool
+>>>Введите команду: create_table users name:str age:int is_active:bool
 Таблица "users" успешно создана со столбцами: id:int, name:str, age:int, is_active:bool
 
->>> insert into users values ("Sergei", 28, true)
+>>>Введите команду: insert into users values ("Sergei", 28, true)
 Запись с id=1 успешно добавлена в таблицу "users".
 
->>> select from users
+>>>Введите команду: select from users
 +----+--------+-----+-----------+
 | id |  name  | age | is_active |
 +----+--------+-----+-----------+
 | 1  | Sergei | 28  |    True   |
 +----+--------+-----+-----------+
 
->>> update users set age = 29 where name = "Sergei"
+>>>Введите команду: update users set age = 29 where name = "Sergei"
 Запись с id=1 в таблице "users" успешно обновлена.
 
->>> delete from users where ID = 1
+>>>Введите команду: delete from users where ID = 1
 Запись с id=1 успешно удалена из таблицы "users".
 ```
 
 ### Демонстрация
 
 https://asciinema.org/a/9wlIb3uX6RmeNTlN
+
+## Декораторы и кэширование
+
+Программа использует декораторы для обработки ошибок, подтверждения опасных операций и замера времени, а также кэширование результатов `select`.
+
+### Обработка ошибок (`handle_db_errors`)
+
+Декоратор перехватывает `KeyError`, `ValueError`, `FileNotFoundError` и другие исключения, выводя понятное сообщение без прерывания работы.
+
+### Подтверждение действий (`confirm_action`)
+
+Перед `drop_table` и `delete` программа спрашивает подтверждение:
+
+```text
+>>> drop_table users
+Вы уверены, что хотите выполнить "удаление таблицы"? [y/n]: n
+Операция отменена.
+```
+Если ввести n (или что-то кроме y) — операция не выполнится, данные останутся нетронутыми.
+
+### Пример работы
+
+```text
+>>>Введите команду: create_table users name:str age:int
+Таблица "users" успешно создана со столбцами: ID:int, name:str, age:int
+
+>>>Введите команду: insert into users values ("Иван", 30)
+Функция insert выполнилась за 0.000 секунд.
+Запись с ID=1 успешно добавлена в таблицу "users".
+
+>>>Введите команду: update users set age = "не_число" where name = "Иван"
+Значение "не_число" не соответствует типу "int" для столбца "age".
+
+>>>Введите команду: update users set phone = "123" where name = "Иван"
+Ошибка: неизвестные столбцы в set: ['phone']
+
+>>>Введите команду: update users set ID = 10 where name = "Иван"
+Ошибка: столбец ID нельзя изменять.
+
+>>>Введите команду: drop_table users
+Вы уверены, что хотите выполнить "удаление таблицы"? [y/n]: n
+Операция отменена.
+
+>>>Введите команду: list_tables
+- users
+```
+
+### Демонстрация
+
+https://asciinema.org/a/M6h8T9BufL54NsM6

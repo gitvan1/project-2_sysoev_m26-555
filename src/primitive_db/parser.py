@@ -31,7 +31,7 @@ def _parse_condition(condition: str) -> dict:
         raise ValueError(f"Некорректное условие (нет '='): '{condition}'")
 
     key, raw_value = condition.split("=", 1)
-    key = key.strip().lower()
+    key = key.strip()
     if not key:
         raise ValueError(f"Пустое имя поля в условии: '{condition}'")
 
@@ -56,7 +56,7 @@ def parse_clauses(args: list[str]) -> dict[str, dict]:
     """Разбор аргументов команды на where и set"""
 
     args = _normalize_tokens(args)
-    
+
     mode = None
     result = {"set": {}, "where": {}}
 

@@ -9,10 +9,9 @@ from prettytable import PrettyTable
 import primitive_db.core as core
 import primitive_db.parser as parser
 import primitive_db.utils as utils
+from primitive_db.constants import DATA_DIR, METADATA_PATH
 from primitive_db.decorators import create_cacher
 
-METADATA_PATH = 'db_meta.json'
-DATA_DIR = "data"
 
 def _print_table(rows: list[dict], table_name: str, metadata: dict) -> None:
     """Вывод списка словарей в виде таблицы"""

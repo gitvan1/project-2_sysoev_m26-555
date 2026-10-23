@@ -1,8 +1,8 @@
 import json
 import os
 
-# Директория, где хранятся данные таблиц
-DATA_DIR = "data"
+from primitive_db.constants import DATA_DIR
+
 
 def load_metadata(filepath: str) -> dict:
     """Загрузка данных из JSON-файла"""

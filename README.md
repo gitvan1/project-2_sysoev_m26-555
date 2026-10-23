@@ -1,5 +1,36 @@
 # project-2_sysoev_m26-555
 
+## Установка и запуск
+
+### Сборка пакета
+
+```bash
+uv build
+```
+
+### Как CLI-инструмент 
+
+Установите пакет как изолированный инструмент — команда `database` станет доступна из любой папки.
+
+```bash
+uv tool install dist/*.whl 
+```
+
+Запуск:
+
+```bash
+database
+```
+
+### Из исходников 
+
+```bash
+uv sync
+uv run python -m primitive_db.main
+```
+
+Готовые файлы появятся в `dist/` (`.whl` и `.tar.gz`).
+
 ## Управление таблицами
 
 После запуска `database` открывается интерактивная оболочка.
@@ -118,3 +149,6 @@ https://asciinema.org/a/9wlIb3uX6RmeNTlN
 ### Демонстрация
 
 https://asciinema.org/a/M6h8T9BufL54NsM6
+
+### Демонстрация полного сценария
+https://asciinema.org/a/2GfgoD8IKvreGTrD

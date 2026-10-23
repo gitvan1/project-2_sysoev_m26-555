@@ -1,8 +1,6 @@
 import primitive_db.utils as utils
 from primitive_db.decorators import confirm_action, handle_db_errors, log_time
-
-# Разрешённые типы столбцов
-ALLOWED_TYPES = {"int", "str", "bool"}
+from primitive_db.constants import ALLOWED_TYPES
 
 
 def validate_value(value, col_type: str) -> bool:
